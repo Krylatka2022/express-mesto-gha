@@ -1,0 +1,12 @@
+{
+  "extends": "airbnb-base",
+  // "plugins": [
+  //   "import"
+  // ],
+  "rules": {
+    // "no-console": "off",
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    // "import/newline-after-import": ["error", { "count": 1 }]
+    "linebreak-style": 0
+  }
+  }
