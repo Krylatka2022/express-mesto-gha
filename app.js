@@ -18,7 +18,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-const { PORT = 3006 } = process.env;
+const { PORT = 3000 } = process.env;
 
 // подключаем мидлвары, роуты и всё остальное...
 
