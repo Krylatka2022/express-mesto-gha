@@ -13,7 +13,7 @@ const getUserById = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
       }
-      return res.send({ data: user });
+      return res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -44,6 +44,10 @@ const updateUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      }
+      if (err.name === 'ValidationError') {
+        const errors = Object.values(err.errors).map((error) => error.message);
+        return res.status(400).send({ message: `Переданы некорректные данные при обновлении профиля: ${errors.join(', ')}` });
       }
       return res.status(500).send({ message: err.message });
     });
