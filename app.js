@@ -35,7 +35,7 @@ app.use('/', cardRoutes);
 
 app.use(express.json());
 app.use('*', (req, res) => {
-  res.status(404).send('Not Found');
+  res.status(404).send({ message: 'Page Not Found' });
 });
 
 app.listen(PORT, () => {
