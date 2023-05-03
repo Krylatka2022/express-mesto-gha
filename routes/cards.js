@@ -8,10 +8,10 @@ const {
 } = require('../controllers/cards');
 
 // Роуты карточек
-cardRouters.get('/cards', getCards);
-cardRouters.delete('/cards/:cardId', deleteCardById);
-cardRouters.post('/cards', createCard);
-cardRouters.put('/cards/:cardId/likes', likeCard);
-cardRouters.delete('/cards/:cardId/likes', dislikeCard);
+cardRouters.get('/', getCards);
+cardRouters.delete('/:cardId', deleteCardById);
+cardRouters.post('/', createCard);
+cardRouters.put('/:cardId/likes', likeCard);
+cardRouters.delete('/:cardId/likes', dislikeCard);
 
 module.exports = cardRouters;
