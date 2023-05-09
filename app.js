@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
+const { celebrate, Joi } = require('celebrate');
 const routes = require('./routes/index');
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const app = express();
 
@@ -15,19 +18,33 @@ app.use(express.json());
 const { PORT = 3000 } = process.env;
 
 // подключаем мидлвары, роуты и всё остальное...
+app.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+    }),
+  }),
+  login,
+);
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+      avatar: Joi.string().pattern(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i),
+    }),
+  }),
+  createUser,
+);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '644e581ce2abc84dce828420', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
+app.use(auth);
 
-  next();
-});
 app.use(routes);
-
-// app.use('*', (req, res) => {
-//   res.status(404).send({ message: 'Page Not Found' });
-// });
 
 const handleNotFound = (req, res) => {
   res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
