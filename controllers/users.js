@@ -60,7 +60,7 @@ const createUser = (req, res) => {
           if (err.name === 'CastError' || err.name === 'ValidationError') {
             return res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
           } if (err.code === 11000) {
-            return (StatusCodes.CONFLICT).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+            return res.status(StatusCodes.CONFLICT).send({ message: 'Пользователь с таким email уже зарегистрирован' });
           }
           return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
         });
