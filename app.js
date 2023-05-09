@@ -43,6 +43,14 @@ app.post(
   createUser,
 );
 
+app.use((req, res, next) => {
+  if (req.path === '/signin' || req.path === '/signup') {
+    next();
+  } else {
+    auth(req, res, next);
+  }
+});
+
 app.use(errors());
 app.use(auth);
 

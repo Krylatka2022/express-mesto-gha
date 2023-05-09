@@ -13,6 +13,22 @@ const getUsers = (req, res) => {
     });
 };
 
+const getUserMe = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(StatusCodes.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+      }
+      return res.status(StatusCodes.OK).send({ user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      }
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+    });
+};
+
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
@@ -113,4 +129,5 @@ module.exports = {
   updateAvatar,
   updateUser,
   login,
+  getUserMe,
 };
