@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const routes = require('./routes/index');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -43,7 +43,7 @@ app.post(
   createUser,
 );
 
-app.use(celebrate.errorHandler());
+app.use(errors());
 app.use(auth);
 
 app.use(routes);
