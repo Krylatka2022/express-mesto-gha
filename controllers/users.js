@@ -101,7 +101,7 @@ const updateAvatar = (req, res) => {
     });
 };
 
-const login = (req, res, next) => {
+const login = (req, res) => {
   const { email, password } = req.body;
   User
     .findUserByCredentials(email, password)
@@ -114,15 +114,15 @@ const login = (req, res, next) => {
         });
       return res.send({ token });
     })
-    /* .catch((err) => {
+    .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Ошибка авторизации' });
       }
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
-}; */
-    .catch(next);
 };
+// .catch(next);
+// };
 
 // Экспорт модулей
 module.exports = {
