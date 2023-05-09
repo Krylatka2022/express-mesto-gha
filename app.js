@@ -43,12 +43,19 @@ app.post(
   createUser,
 );
 
+// app.use((req, res, next) => {
+//   if (req.path === '/signin' || req.path === '/signup') {
+//     next();
+//   } else {
+//     auth(req, res, next);
+//   }
+// });
+
 app.use((req, res, next) => {
   if (req.path === '/signin' || req.path === '/signup') {
-    next();
-  } else {
-    auth(req, res, next);
+    return next();
   }
+  return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Необходима авторизация' });
 });
 
 app.use(errors());
