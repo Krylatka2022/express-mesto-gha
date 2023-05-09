@@ -60,6 +60,12 @@ const handleNotFound = (req, res) => {
   res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
 };
 
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка по умолчанию' : message });
+  next();
+});
+
 app.use('*', handleNotFound);
 
 app.listen(PORT, () => {

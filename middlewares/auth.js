@@ -10,14 +10,12 @@ const auth = (req, res, next) => {
   }
   let payload;
   try {
-    payload = jwt.verify(token, NODE_ENV ? JWT_SECRET : 'some-secret-key');
+    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key');
   } catch (err) {
     return res.status(StatusCodes.UNAUTHORIZED).send({ message: ReasonPhrases.UNAUTHORIZED });
   }
   req.user = payload;
   return next();
 };
-
-module.exports = auth;
 
 module.exports = auth;

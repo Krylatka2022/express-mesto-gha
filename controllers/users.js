@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const { StatusCodes } = require('http-status-codes');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -100,7 +101,7 @@ const updateAvatar = (req, res) => {
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   User
     .findUserByCredentials(email, password)
@@ -113,12 +114,14 @@ const login = (req, res) => {
         });
       return res.send({ token });
     })
-    .catch((err) => {
+    /* .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Ошибка авторизации' });
       }
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
+}; */
+    .catch(next);
 };
 
 // Экспорт модулей
