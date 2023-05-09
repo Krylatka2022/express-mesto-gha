@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
-const Joi = require('joi');
+const { celebrate, Joi } = require('celebrate');
 const routes = require('./routes/index');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -20,24 +20,30 @@ const { PORT = 3000 } = process.env;
 // подключаем мидлвары, роуты и всё остальное...
 app.post(
   '/signin',
-  Joi.object({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+    }),
   }),
   login,
 );
+
 app.post(
   '/signup',
-  Joi.object({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i),
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(30),
+      avatar: Joi.string().pattern(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i),
+    }),
   }),
   createUser,
 );
 
+app.use(celebrate.errorHandler());
 app.use(auth);
 
 app.use(routes);
