@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (email) => validator.isEmail(email),
+      message: ({ value }) => `${value} не является действительным адресом электронной почты!`,
     },
   },
   password: {
