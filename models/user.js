@@ -37,22 +37,24 @@ const userSchema = new mongoose.Schema({
     required: true,
     select: false,
   },
-}, { toJSON: { virtuals: true }, toObject: { virtuals: true } });
+}, { toJSON: { useProjection: true }, toObject: { useProjection: true } });
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
+  // Ищем пользователя по почте
   return this.findOne({ email }).select('+password')
     .then((user) => {
+      // Не нашелся - отклоняем промис
       if (!user) {
         return Promise.reject(new Error('Неправильный email или пароль.'));
       }
+      // нашелся - -сравниваем хэши
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             return Promise.reject(new Error('Неправильный email или пароль.'));
           }
-          return user;
+          return user; // теперь user доступен
         });
     });
 };
-
 module.exports = mongoose.model('user', userSchema);
