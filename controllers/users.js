@@ -14,20 +14,36 @@ const getUsers = (req, res) => {
     });
 };
 
+// const getUserMe = (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       console.log(user);
+//       if (!user) {
+//         return res.status(StatusCodes.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+//       }
+//       return res.status(StatusCodes.OK).send({ user });
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         return res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
+//       }
+//       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+//     });
+// };
 const getUserMe = (req, res) => {
   User.findById(req.user._id)
+    .select('-password') // исключаем поле password из ответа
     .then((user) => {
-      console.log(user);
       if (!user) {
-        return res.status(StatusCodes.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
       }
-      return res.status(StatusCodes.OK).send({ user });
+      return res.status(StatusCodes.OK).json({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Переданы некорректные данные при создании пользователя' });
       }
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'На сервере произошла ошибка' });
     });
 };
 
