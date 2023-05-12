@@ -17,6 +17,7 @@ const getUsers = (req, res) => {
 const getUserMe = (req, res) => {
   User.findById(req.user._id)
     .then((user) => {
+      console.log(user);
       if (!user) {
         return res.status(StatusCodes.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
       }
@@ -29,6 +30,23 @@ const getUserMe = (req, res) => {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
+
+// const getUserMe = (req, res) => {
+//   User.findById(req.user._id)
+//     .select('-password') // исключаем поле password из ответа
+//     .then((user) => {
+//       if (!user) {
+//         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+//       }
+//       return res.status(StatusCodes.OK).json({ user });
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Переданы некорректные данные при создании пользователя' });
+//       }
+//       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'На сервере произошла ошибка' });
+//     });
+// };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
@@ -106,16 +124,53 @@ const login = (req, res, next) => {
   User
     .findUserByCredentials(email, password)
     .then((user) => {
+      console.log(user);
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key', { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
           maxAge: 3600000,
           httpOnly: true,
+          sameSite: true,
         });
       return res.send({ token });
     })
     .catch(next);
 };
+// const login = (req, res) => {
+//   const { email, password } = req.body;
+
+//   User.findOne({ email }).select('+password')
+//     // eslint-disable-next-line consistent-return
+//     .then((user) => {
+//       if (!user) {
+//         return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Неправильные почта или пароль' });
+//       }
+
+//       bcrypt.compare(password, user.password)
+//         // eslint-disable-next-line consistent-return
+//         .then((matched) => {
+//           if (!matched) {
+//             return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Неправильные почта или пароль' });
+//           }
+
+//           const token = jwt.sign(
+//             { _id: user._id },
+//             NODE_ENV === 'production' ? JWT_SECRET : 'secret-key',
+//             { expiresIn: '7d' },
+//           );
+
+//           res.send({ token });
+//         })
+//         .catch((err) => {
+//           console.log(err);
+//           res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+//         });
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+//     });
+// };
 /* .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Ошибка авторизации' });

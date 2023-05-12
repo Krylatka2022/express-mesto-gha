@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
 const { celebrate, Joi, errors } = require('celebrate');
+const cookieParser = require('cookie-parser');
 const routes = require('./routes/index');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -15,6 +16,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 });
 
 app.use(express.json());
+app.use(cookieParser());
 const { PORT = 3000 } = process.env;
 
 // подключаем мидлвары, роуты и всё остальное...
@@ -51,12 +53,12 @@ app.post(
 //   }
 // });
 
-app.use((req, res, next) => {
-  if (req.path === '/signin' || req.path === '/signup') {
-    return next();
-  }
-  return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Необходима авторизация' });
-});
+// app.use((req, res, next) => {
+//   if (req.path === '/signin' || req.path === '/signup') {
+//     return next();
+//   }
+//   return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Необходима авторизация' });
+// });
 
 app.use(errors());
 app.use(auth);
