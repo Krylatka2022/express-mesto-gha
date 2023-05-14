@@ -5,7 +5,7 @@ const { celebrate, Joi, errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes/index');
 const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+// const auth = require('./middlewares/auth');
 
 const app = express();
 
@@ -61,7 +61,7 @@ app.post(
 // });
 
 app.use(errors());
-app.use(auth);
+// app.use(auth);
 
 app.use(routes);
 

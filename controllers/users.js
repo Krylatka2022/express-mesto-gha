@@ -30,7 +30,8 @@ const getUsers = (req, res) => {
 //       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
 //     });
 // };
-const getUserMe = (req, res, next) => {
+
+const getUserMe = (req, res) => {
   User.findById(req.user._id)
     .select('-password') // исключаем поле password из ответа
     .then((user) => {
@@ -39,8 +40,22 @@ const getUserMe = (req, res, next) => {
       }
       return res.status(StatusCodes.OK).json({ user });
     })
-    .catch(next);
+    .catch((err) => {
+      console.error(err);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
+    });
 };
+// const getUserMe = (req, res, next) => {
+//   User.findById(req.user._id)
+//     .select('-password') // исключаем поле password из ответа
+//     .then((user) => {
+//       if (!user) {
+//         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+//       }
+//       return res.status(StatusCodes.OK).json({ user });
+//     })
+//     .catch(next);
+// };
 // if (err.name === 'CastError') {
 //   return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Переданы некорректные данные при создании пользователя' });
 // }
@@ -143,7 +158,6 @@ const login = (req, res, next) => {
   User
     .findUserByCredentials(email, password)
     .then((user) => {
-      console.log(user);
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key', { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
@@ -155,6 +169,7 @@ const login = (req, res, next) => {
     })
     .catch(next);
 };
+
 // const login = (req, res) => {
 //   const { email, password } = req.body;
 
