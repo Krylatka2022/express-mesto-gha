@@ -93,21 +93,42 @@ function deleteCardById(req, res, next) {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-      } else if (req.user._id !== card.owner._id.toString()) {
-        res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
-      } else {
-        card.remove()
-          .then(() => res.send({ data: card }));
+        return res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+      } if (req.user._id !== card.owner._id.toString()) {
+        return res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
       }
+      return card.remove()
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки' });
-      } else next(err);
+        return res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки' });
+      } return next(err);
     });
 }
 
+// deleteCardById = (req, res, next) => {
+//   const { cardId } = req.params;
+
+//   Card
+//     .findById(cardId)
+//     .then((card) => {
+//       if (!card) {
+//         return next(new NotFoundError('Карточка с указанным _id не найдена'));
+//       }
+//       if (!card.owner.equals(req.user._id)) {
+//         return next(new ForbiddenError('Попытка удалить чужую карточку'));
+//       }
+//       return card.remove().then(() => res.send({ message: 'Карточка успешно удалена' }));
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         next(new BadRequestError('Переданы некорректные данные'));
+//       } else {
+//         next(err);
+//       }
+//     });
+// };
 const likeCard = (req, res) => {
   const { cardId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
