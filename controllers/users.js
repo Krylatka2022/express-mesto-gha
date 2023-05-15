@@ -33,31 +33,31 @@ const getUsers = (req, res) => {
 
 // -------------------------Рабочая функция
 
-// const getUserMe = (req, res) => {
-//   User.findById(req.user._id)
-//     .then((user) => {
-//       if (!user) {
-//         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
-//       }
-//       return res.status(StatusCodes.OK).json({ user });
-//     })
-//     .catch((err) => {
-//       console.error(err);
-// return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
-//     });
-// };
-
-// ----------------------------
-function getUserMe(req, res, next) {
+const getUserMe = (req, res) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return next(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
       }
       return res.status(StatusCodes.OK).json({ user });
     })
-    .catch(next);
-}
+    .catch((err) => {
+      console.error(err);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
+    });
+};
+
+// ----------------------------
+// function getUserMe(req, res, next) {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       if (!user) {
+//         return next(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+//       }
+//       return res.status(StatusCodes.OK).json({ user });
+//     })
+//     .catch(next);
+// }
 // Получить данные пользователя по id
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
