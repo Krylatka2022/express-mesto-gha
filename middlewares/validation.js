@@ -1,13 +1,21 @@
 const { celebrate, Joi } = require('celebrate');
-const isUrl = require('validator/lib/isURL');
+const validator = require('validator');
 const BAD_REQUEST = require('http-errors');
 
+// const validationUrl = (url) => {
+//   const isValid = isUrl(url);
+//   if (isValid) {
+//     return url;
+//   }
+//   throw new BAD_REQUEST('Некорректный адрес URL');
+// };
+
 const validationUrl = (url) => {
-  const isValid = isUrl(url);
+  const isValid = validator.isURL(url);
   if (isValid) {
     return url;
   }
-  throw new BAD_REQUEST('Некорректный адрес URL');
+  throw new BAD_REQUEST('Невалидный URL');
 };
 
 const validationLogin = celebrate({
@@ -48,7 +56,7 @@ const validationUserId = celebrate({
 
 const validationCreateCard = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
+    name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().custom(validationUrl),
   }),
 });
@@ -56,6 +64,24 @@ const validationCreateCard = celebrate({
 const validationCardId = celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().hex().length(24),
+  }),
+});
+
+const validationSignUp = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(/https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/im),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+});
+
+// когда существующий пользователь логинится
+const validationSignIn = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
   }),
 });
 
@@ -67,4 +93,6 @@ module.exports = {
   validationUserId,
   validationCreateCard,
   validationCardId,
+  validationSignUp,
+  validationSignIn,
 };

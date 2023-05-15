@@ -33,23 +33,31 @@ const getUsers = (req, res) => {
 
 // -------------------------Рабочая функция
 
-const getUserMe = (req, res) => {
+// const getUserMe = (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       if (!user) {
+//         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+//       }
+//       return res.status(StatusCodes.OK).json({ user });
+//     })
+//     .catch((err) => {
+//       console.error(err);
+// return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
+//     });
+// };
+
+// ----------------------------
+function getUserMe(req, res, next) {
   User.findById(req.user._id)
-    .select('-password') // исключаем поле password из ответа
     .then((user) => {
       if (!user) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+        return next(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
       }
       return res.status(StatusCodes.OK).json({ user });
     })
-    .catch((err) => {
-      console.error(err);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
-    });
-};
-
-// ----------------------------
-
+    .catch(next);
+}
 // Получить данные пользователя по id
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
@@ -67,7 +75,7 @@ const getUserById = (req, res, next) => {
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email,
   } = req.body;
@@ -79,13 +87,15 @@ const createUser = (req, res) => {
         .then((user) => res.status(StatusCodes.CREATED).send({ data: user }))
         .catch((err) => {
           if (err.name === 'CastError' || err.name === 'ValidationError') {
-            return res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
-          } if (err.code === 11000) {
-            return res.status(StatusCodes.CONFLICT).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+            res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
+          } else if (err.code === 11000) {
+            res.status(StatusCodes.CONFLICT).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+          } else {
+            next(err);
           }
-          return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
         });
-    });
+    })
+    .catch(next);
 };
 
 const updateUser = (req, res) => {
@@ -133,8 +143,8 @@ const login = (req, res, next) => {
           maxAge: 3600000,
           httpOnly: true,
           sameSite: true,
-        });
-      return res.send({ token });
+        })
+        .send({ token });
     })
     .catch(next);
 };

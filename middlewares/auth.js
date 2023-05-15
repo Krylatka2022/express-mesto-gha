@@ -8,31 +8,32 @@ const handleUnauthorized = (req, res, next) => {
   next();
 };
 
-const auth = (req, res, next) => {
-  const token = req.cookies.jwt;
-  let payload;
-  try {
-    payload = jwt.verify(token, NODE_ENV ? JWT_SECRET : 'secret-key');
-  } catch (err) {
-    return handleUnauthorized(req, res, next);
-  }
-  req.user = payload;
-  return next();
-};
-
 // const auth = (req, res, next) => {
 //   const token = req.cookies.jwt;
-//   if (!token) {
-//     return handleUnauthorized();
-//   }
 //   let payload;
 //   try {
 //     payload = jwt.verify(token, NODE_ENV ? JWT_SECRET : 'secret-key');
 //   } catch (err) {
-//     return handleUnauthorized();
+//     return handleUnauthorized(req, res, next);
 //   }
 //   req.user = payload;
 //   return next();
 // };
+
+const auth = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (!token) {
+    return handleUnauthorized();
+  }
+  let payload;
+  try {
+    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key');
+  } catch (err) {
+    // return handleUnauthorized();
+    return next(err);
+  }
+  req.user = payload;
+  return next;
+};
 
 module.exports = auth;
