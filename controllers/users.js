@@ -36,6 +36,7 @@ const getUsers = (req, res) => {
 const getUserMe = (req, res) => {
   User.findById(req.user._id)
     .then((user) => {
+      console.log('Найден пользователь:', user);
       if (!user) {
         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
       }

@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { StatusCodes } = require('http-status-codes');
+// const { StatusCodes } = require('http-status-codes');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes/index');
@@ -66,13 +66,13 @@ app.use(errors());
 
 app.use(routes);
 
-const handleNotFound = (req, res) => {
-  res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
-};
+// const handleNotFound = (req, res) => {
+//   res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
+// };
 
 app.use(errorHandler);
 
-app.use('*', handleNotFound);
+// app.use('*', handleNotFound);
 
 app.listen(PORT, () => {
   console.log(`app слушает порт: ${PORT}`);
