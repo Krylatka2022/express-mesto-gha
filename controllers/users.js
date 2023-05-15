@@ -33,57 +33,22 @@ const getUsers = (req, res) => {
 
 // -------------------------Рабочая функция
 
-// const getUserMe = (req, res) => {
-//   User.findById(req.user._id)
-//     .select('-password') // исключаем поле password из ответа
-//     .then((user) => {
-//       if (!user) {
-//         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
-//       }
-//       return res.status(StatusCodes.OK).json({ user });
-//     })
-//     .catch((err) => {
-//       console.error(err);
-//       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
-//     });
-// };
+const getUserMe = (req, res) => {
+  User.findById(req.user._id)
+    .select('-password') // исключаем поле password из ответа
+    .then((user) => {
+      if (!user) {
+        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+      }
+      return res.status(StatusCodes.OK).json({ user });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
+    });
+};
 
 // ----------------------------
-// const getUserMe = (req, res, next) => {
-//   User.findById(req.user._id)
-//     .select('-password') // исключаем поле password из ответа
-//     .then((user) => {
-//       if (!user) {
-//         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
-//       }
-//       return res.status(StatusCodes.OK).json({ user });
-//     })
-//     .catch(next);
-// };
-// if (err.name === 'CastError') {
-//   return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Переданы некорректные данные при создании пользователя' });
-// }
-// eslint-disable-next-line implicit-arrow-linebreak
-//         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
-//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'На сервере произошла ошибка' }));
-// };
-
-// function getUserById(req, res, next) {
-//   User.findById(req.params.userId)
-//     .then((user) => {
-//       if (!user) {
-//         return res.status(StatusCodes.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
-//       }
-//       res.status(StatusCodes.OK).send({ user });
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
-//       }
-//       next(err);
-//       // return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-//     });
-// }
 
 // Получить данные пользователя по id
 const getUserById = (req, res, next) => {
@@ -101,12 +66,6 @@ const getUserById = (req, res, next) => {
       return next(err);
     });
 };
-
-const getUserMe = (req, res, next) => {
-  const requiredData = req.user._id;
-  getUserById(req, res, requiredData, next);
-};
-// const getUserMe = (req, res, next) => {
 
 const createUser = (req, res) => {
   const {
