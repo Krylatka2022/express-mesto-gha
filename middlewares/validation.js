@@ -1,13 +1,13 @@
 const { celebrate, Joi } = require('celebrate');
 const isUrl = require('validator/lib/isURL');
-const { BadRequest } = require('http-errors');
+const BAD_REQUEST = require('http-errors');
 
 const validationUrl = (url) => {
   const isValid = isUrl(url);
   if (isValid) {
     return url;
   }
-  throw new BadRequest('Некорректный адрес URL');
+  throw new BAD_REQUEST('Некорректный адрес URL');
 };
 
 const validationLogin = celebrate({
