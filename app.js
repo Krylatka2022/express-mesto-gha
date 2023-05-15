@@ -1,12 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
-// const { StatusCodes } = require('http-status-codes');
+const { StatusCodes } = require('http-status-codes');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
-// const { createUser, login } = require('./controllers/users');
-// const auth = require('./middlewares/auth');
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const { validationSignIn, validationSignUp } = require('./middlewares/validation');
 
 const app = express();
 
@@ -60,19 +61,22 @@ const { PORT = 3000 } = process.env;
 //   }
 //   return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Необходима авторизация' });
 // });
+app.post('/signup', validationSignUp, createUser);
+app.post('/signin', validationSignIn, login);
 
-app.use(errors());
-// app.use(auth);
+app.use(auth);
 
 app.use(routes);
 
-// const handleNotFound = (req, res) => {
-//   res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
-// };
+app.use(errors());
+
+const handleNotFound = (req, res) => {
+  res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
+};
 
 app.use(errorHandler);
 
-// app.use('*', handleNotFound);
+app.use('*', handleNotFound);
 
 app.listen(PORT, () => {
   console.log(`app слушает порт: ${PORT}`);
