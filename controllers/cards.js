@@ -93,17 +93,17 @@ function deleteCardById(req, res, next) {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
       } if (req.user._id !== card.owner._id.toString()) {
-        return res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
+        res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
       }
-      return card.remove()
+      card.remove()
         .then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки' });
-      } return next(err);
+        res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки' });
+      } next(err);
     });
 }
 
