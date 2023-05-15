@@ -68,23 +68,45 @@ const createCard = (req, res) => {
 //     });
 // };
 
-const deleteCardById = (req, res) => {
-  const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
+// const deleteCardById = (req, res) => {
+//   const { cardId } = req.params;
+//   Card.findByIdAndRemove(cardId)
+//     .then((card) => {
+//       if (!card) {
+// eslint-disable-next-line max-len
+//         return res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+//       }
+//       return res.status(StatusCodes.OK).send({ message: 'Карточка удалена' });
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+//       } else {
+// eslint-disable-next-line max-len
+//         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+//       }
+//     });
+// };
+
+// Удаление карточки
+function deleteCardById(req, res, next) {
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+      } else if (req.user._id !== card.owner._id.toString()) {
+        res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
+      } else {
+        card.remove()
+          .then(() => res.send({ data: card }));
       }
-      return res.status(StatusCodes.OK).send({ message: 'Карточка удалена' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-      } else {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-      }
+        res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки' });
+      } else next(err);
     });
-};
+}
 
 const likeCard = (req, res) => {
   const { cardId } = req.params;
