@@ -31,20 +31,24 @@ const getUsers = (req, res) => {
 //     });
 // };
 
-const getUserMe = (req, res) => {
-  User.findById(req.user._id)
-    .select('-password') // исключаем поле password из ответа
-    .then((user) => {
-      if (!user) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
-      }
-      return res.status(StatusCodes.OK).json({ user });
-    })
-    .catch((err) => {
-      console.error(err);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
-    });
-};
+// -------------------------Рабочая функция
+
+// const getUserMe = (req, res) => {
+//   User.findById(req.user._id)
+//     .select('-password') // исключаем поле password из ответа
+//     .then((user) => {
+//       if (!user) {
+//         return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+//       }
+//       return res.status(StatusCodes.OK).json({ user });
+//     })
+//     .catch((err) => {
+//       console.error(err);
+//       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
+//     });
+// };
+
+// ----------------------------
 // const getUserMe = (req, res, next) => {
 //   User.findById(req.user._id)
 //     .select('-password') // исключаем поле password из ответа
@@ -97,6 +101,12 @@ const getUserById = (req, res, next) => {
       return next(err);
     });
 };
+
+const getUserMe = (req, res, next) => {
+  const requiredData = req.user._id;
+  getUserById(req, res, requiredData, next);
+};
+// const getUserMe = (req, res, next) => {
 
 const createUser = (req, res) => {
   const {
