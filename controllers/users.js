@@ -34,17 +34,18 @@ const getUsers = (req, res) => {
 // -------------------------Рабочая функция
 
 const getUserMe = (req, res) => {
-  User.findById(req.user._id)
+  const { _id } = req.user;
+  User.findById({ _id })
     .then((user) => {
-      console.log('Найден пользователь:', user);
-      if (!user) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
+      if (user) {
+        res.status(StatusCodes.OK).json({ user });
+      } else {
+        res.status(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
       }
-      return res.status(StatusCodes.OK).json({ user });
     })
     .catch((err) => {
       console.error(err);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
     });
 };
 
@@ -60,19 +61,21 @@ const getUserMe = (req, res) => {
 //     .catch(next);
 // }
 // Получить данные пользователя по id
-const getUserById = (req, res, next) => {
-  User.findById(req.params.userId)
+const getUserById = (req, res) => {
+  const _id = req.params.userId;
+  User.findById({ _id })
     .then((user) => {
-      if (!user) {
-        return res.status(StatusCodes.NOT_FOUND).send({ message: 'Пользователь не найден' });
+      if (user) {
+        res.send({ data: user });
+      } else {
+        res.status(StatusCodes.NOT_FOUND).send({ message: 'Пользователь не найден' });
       }
-      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при поиске пользователя' });
       }
-      return next(err);
+      // return next(err);
     });
 };
 
