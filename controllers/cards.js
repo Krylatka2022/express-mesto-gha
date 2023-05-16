@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
 const Card = require('../models/card');
-const BadRequest = require('../errors/badRequest-error');
-const NotFound = require('../errors/notFound-error');
+const BadRequestError = require('../errors/badRequest-error');
+const NotFoundError = require('../errors/notFound-error');
 const ForbiddenError = require('../errors/forbidden-error');
 
 const getCards = (req, res) => {
@@ -23,7 +23,7 @@ const createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         // eslint-disable-next-line max-len
         // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки.' });
-        throw new BadRequest('Переданы некорректные данные при создании карточки');
+        throw new BadRequestError('Переданы некорректные данные при создании карточки');
       } else {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -58,7 +58,7 @@ function deleteCardById(req, res, next) {
       if (!card) {
         // eslint-disable-next-line max-len
         // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-        throw new NotFound('Карточка с указанным _id не найдена');
+        throw new NotFoundError('Карточка с указанным _id не найдена');
       } if (req.user._id !== card.owner._id.toString()) {
         // eslint-disable-next-line max-len
         // res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
@@ -103,7 +103,7 @@ const likeCard = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
     // eslint-disable-next-line max-len
     // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
-    next(new BadRequest('Переданы некорректные данные для постановки лайка'));
+    next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
   }
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .populate('owner')
@@ -112,7 +112,7 @@ const likeCard = (req, res, next) => {
       if (!card) {
         // eslint-disable-next-line max-len
         // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
-        throw new NotFound('Карточка с указанным _id не найдена');
+        throw new NotFoundError('Карточка с указанным _id не найдена');
       }
       res.status(StatusCodes.OK).send({ data: card });
     })
@@ -134,7 +134,7 @@ const dislikeCard = (req, res) => {
         // eslint-disable-next-line max-len
         // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
         // return;
-        throw new NotFound('Карточка с указанным _id не найдена');
+        throw new NotFoundError('Карточка с указанным _id не найдена');
       }
       res.status(StatusCodes.OK).send({ data: card });
     })

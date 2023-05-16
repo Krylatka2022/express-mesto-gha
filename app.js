@@ -35,7 +35,7 @@ app.use(errors());
 
 const handleNotFound = () => {
   // res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
-  throw new NotFoundError('Запрашиваемый ресурс не найден');
+  throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
 };
 
 app.use(errorHandler);
