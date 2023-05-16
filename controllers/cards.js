@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
 const Card = require('../models/card');
 const BadRequestError = require('../errors/badRequest-error');
@@ -98,51 +98,98 @@ function deleteCardById(req, res, next) {
 //       }
 //     });
 // };
+// const likeCard = (req, res, next) => {
+//   const { cardId } = req.params;
+//   if (!mongoose.Types.ObjectId.isValid(cardId)) {
+//      eslint-disable-next-line max-len, max-len
+//     // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
+//     next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
+//   }
+//   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+//     .populate('owner')
+//     .populate('likes')
+//     .then((card) => {
+//       if (!card) {
+//          eslint-disable-next-line max-len, max-len
+//         // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
+//         throw new NotFoundError('Карточка с указанным _id не найдена');
+//       }
+//       res.status(StatusCodes.OK).send({ data: card });
+//     })
+//     .catch(() => {
+// eslint-disable-next-line max-len
+//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+//     });
+// };
+
+// const dislikeCard = (req, res) => {
+//   const { cardId } = req.params;
+//   if (!mongoose.Types.ObjectId.isValid(cardId)) {
+//     res.status().send({ message: 'Переданы некорректные данные для снятия лайка' });
+//   }
+//   Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
+//     .populate('owner')
+//     .populate('likes')
+//     .then((card) => {
+//       if (!card) {
+//          eslint-disable-next-line max-len, max-len, max-len
+//         // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
+//         // return;
+//         throw new NotFoundError('Карточка с указанным _id не найдена');
+//       }
+//       res.status(StatusCodes.OK).send({ data: card });
+//     })
+//     .catch(() => {
+// eslint-disable-next-line max-len
+//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+//     });
+// };
+
 const likeCard = (req, res, next) => {
-  const { cardId } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    // eslint-disable-next-line max-len
-    // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
-    next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
-  }
-  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .populate('owner')
-    .populate('likes')
+  Card
+    .findByIdAndUpdate(
+      req.params.cardId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true },
+    )
+    .orFail(() => new NotFoundError('Указанный _id не найден'))
     .then((card) => {
       if (!card) {
-        // eslint-disable-next-line max-len
-        // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
-        throw new NotFoundError('Карточка с указанным _id не найдена');
+        return next(new NotFoundError('Карточка с указанным _id не найдена'));
       }
-      res.status(StatusCodes.OK).send({ data: card });
+      return res.send({ card, message: 'Лайк успешно поставлен' });
     })
-    .catch(() => {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные для постановки лайка'));
+      } else {
+        next(err);
+      }
     });
 };
 
-const dislikeCard = (req, res) => {
-  const { cardId } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    res.status().send({ message: 'Переданы некорректные данные для снятия лайка' });
-  }
-  Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .populate('owner')
-    .populate('likes')
+const dislikeCard = (req, res, next) => {
+  Card
+    .findByIdAndUpdate(
+      req.params.cardId,
+      { $pull: { likes: req.user._id } },
+      { new: true },
+    )
+    .orFail(() => new NotFoundError('Указанный _id не найден'))
     .then((card) => {
       if (!card) {
-        // eslint-disable-next-line max-len
-        // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
-        // return;
-        throw new NotFoundError('Карточка с указанным _id не найдена');
+        return next(new NotFoundError('Карточка с указанным _id не найдена'));
       }
-      res.status(StatusCodes.OK).send({ data: card });
+      return res.send({ card, message: 'Лайк успешно удален' });
     })
-    .catch(() => {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные для снятия лайка'));
+      } else {
+        next(err);
+      }
     });
 };
-
 // Экспорт модулей
 module.exports = {
   getCards,

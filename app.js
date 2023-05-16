@@ -33,14 +33,16 @@ app.use(routes);
 
 app.use(errors());
 
-const handleNotFound = () => {
-  // res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
-  throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
-};
+// const handleNotFound = () => {
+//   // res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
+//   throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
+// };
 
 app.use(errorHandler);
 
-app.use('*', handleNotFound);
+app.use('*', auth, () => {
+  throw new NotFoundError('Запрашиваемый ресурс не найден');
+});
 
 app.listen(PORT, () => {
   console.log(`app слушает порт: ${PORT}`);

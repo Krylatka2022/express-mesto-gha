@@ -2,6 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 // const NOT_FOUND = require('http-errors');
+
 const userRoutes = require('./users');
 const cardRoutes = require('./cards');
 const auth = require('../middlewares/auth');
