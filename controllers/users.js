@@ -17,53 +17,22 @@ const getUsers = (req, res) => {
     });
 };
 
-// const getUserMe = (req, res) => {
-//   User.findById(req.user._id)
-//     .then((user) => {
-//       console.log(user);
-//       if (!user) {
-//         return res.status(StatusCodes.NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
-//       }
-//       return res.status(StatusCodes.OK).send({ user });
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         return res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
-//       }
-//       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-//     });
-// };
-
-// -------------------------Рабочая функция
-
 const getUserMe = (req, res, next) => {
-  // const { _id } = req.user;
   User.findById(req.user._id)
-    .then((user) => {
-      if (user) {
-        next(StatusCodes.OK).json({ user });
-      } else {
-        // next(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
-        throw new NotFoundError('Пользователь по указанному _id не найден');
+    .orFail(() => {
+      throw new NotFoundError('Пользователь не найден');
+    })
+    .then((user) => res.status(200).send({ user }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new BadRequestError('Переданы некорректные данные');
+      } else if (err.message === 'NotFound') {
+        throw new NotFoundError('Пользователь не найден');
       }
     })
-    .catch((err) => {
-      console.error(err);
-      next(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Ошибка при выполнении запроса к базе данных.' });
-    });
+    .catch(next);
 };
 
-// ----------------------------
-// function getUserMe(req, res, next) {
-//   User.findById(req.user._id)
-//     .then((user) => {
-//       if (!user) {
-//         return next(StatusCodes.NOT_FOUND).json({ message: 'Пользователь с указанным _id не найден.' });
-//       }
-//       return res.status(StatusCodes.OK).json({ user });
-//     })
-//     .catch(next);
-// }
 // Получить данные пользователя по id
 const getUserById = (req, res, next) => {
   const { userId } = req.params;
