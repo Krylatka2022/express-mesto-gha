@@ -186,49 +186,6 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-// const login = (req, res) => {
-//   const { email, password } = req.body;
-
-//   User.findOne({ email }).select('+password')
-//     // eslint-disable-next-line consistent-return
-//     .then((user) => {
-//       if (!user) {
-//         return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Неправильные почта или пароль' });
-//       }
-
-//       bcrypt.compare(password, user.password)
-//         // eslint-disable-next-line consistent-return
-//         .then((matched) => {
-//           if (!matched) {
-//             return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Неправильные почта или пароль' });
-//           }
-
-//           const token = jwt.sign(
-//             { _id: user._id },
-//             NODE_ENV === 'production' ? JWT_SECRET : 'secret-key',
-//             { expiresIn: '7d' },
-//           );
-
-//           res.send({ token });
-//         })
-//         .catch((err) => {
-//           console.log(err);
-//           res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-//         });
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-//     });
-// };
-/* .catch((err) => {
-      if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(StatusCodes.UNAUTHORIZED).send({ message: 'Ошибка авторизации' });
-      }
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
-    });
-}; */
-
 // Экспорт модулей
 module.exports = {
   getUsers,

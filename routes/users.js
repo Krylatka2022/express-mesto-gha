@@ -10,8 +10,8 @@ const {
 
 // Роуты пользователя
 userRouters.get('/', getUsers);
-userRouters.get('/:userId', validationUserId, getUserById);
 userRouters.get('/me', getUserMe);
+userRouters.get('/:userId', validationUserId, getUserById);
 userRouters.patch('/me', validationUpdateUser, updateUser);
 userRouters.patch('/me/avatar', validationUpdateAvatar, updateAvatar);
 

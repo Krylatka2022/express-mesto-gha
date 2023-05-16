@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-// const { StatusCodes } = require('http-status-codes');
+const { StatusCodes } = require('http-status-codes');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes/index');
@@ -8,7 +8,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { validationSignIn, validationSignUp } = require('./middlewares/validation');
-const NotFoundError = require('./errors/notFound-error');
+// const NotFoundError = require('./errors/notFound-error');
 
 const app = express();
 
@@ -33,16 +33,14 @@ app.use(routes);
 
 app.use(errors());
 
-// const handleNotFound = () => {
-//   // res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
-//   throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
-// };
+const handleNotFound = (req, res) => {
+  res.status(StatusCodes.NOT_FOUND).send({ message: 'Page Not Found' });
+  // throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
+};
 
 app.use(errorHandler);
 
-app.use('*', auth, () => {
-  throw new NotFoundError('Запрашиваемый ресурс не найден');
-});
+app.use('*', handleNotFound);
 
 app.listen(PORT, () => {
   console.log(`app слушает порт: ${PORT}`);
