@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const { StatusCodes } = require('http-status-codes');
 const Card = require('../models/card');
+const BadRequest = require('../errors/badRequest-error');
+const NotFound = require('../errors/notFound-error');
+const ForbiddenError = require('../errors/forbidden-error');
 
 const getCards = (req, res) => {
   Card.find({})
@@ -18,7 +21,9 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки.' });
+        // eslint-disable-next-line max-len
+        // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки.' });
+        throw new BadRequest('Переданы некорректные данные при создании карточки');
       } else {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
@@ -47,21 +52,28 @@ const createCard = (req, res) => {
 
 // Удаление карточки
 function deleteCardById(req, res, next) {
-  Card.findById(req.params.cardId)
+  const { cardId } = req.params;
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        // eslint-disable-next-line max-len
+        // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw new NotFound('Карточка с указанным _id не найдена');
       } if (req.user._id !== card.owner._id.toString()) {
-        res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
+        // eslint-disable-next-line max-len
+        // res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
+        throw new ForbiddenError('У вас нет прав на удаление данной карточки');
       }
-      card.remove()
+      Card.findByIdAndRemove(cardId)
         .then(() => res.send({ message: 'Карточка удалена' }));
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки' });
-      } next(err);
-    });
+    // .catch((err) => {
+    //   // if (err.name === 'CastError') {
+    // eslint-disable-next-line max-len, max-len, max-len
+    // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки' });
+    // }
+    //  next(err);
+    .catch(next);
 }
 
 // deleteCardById = (req, res, next) => {
@@ -86,19 +98,21 @@ function deleteCardById(req, res, next) {
 //       }
 //     });
 // };
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const { cardId } = req.params;
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
-    return;
+    // eslint-disable-next-line max-len
+    // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
+    next(new BadRequest('Переданы некорректные данные для постановки лайка'));
   }
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .populate('owner')
     .populate('likes')
     .then((card) => {
       if (!card) {
-        res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
-        return;
+        // eslint-disable-next-line max-len
+        // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
+        throw new NotFound('Карточка с указанным _id не найдена');
       }
       res.status(StatusCodes.OK).send({ data: card });
     })
@@ -117,8 +131,10 @@ const dislikeCard = (req, res) => {
     .populate('likes')
     .then((card) => {
       if (!card) {
-        res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
-        return;
+        // eslint-disable-next-line max-len
+        // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
+        // return;
+        throw new NotFound('Карточка с указанным _id не найдена');
       }
       res.status(StatusCodes.OK).send({ data: card });
     })
