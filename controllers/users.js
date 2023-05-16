@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/notFound-error');
 const BadRequestError = require('../errors/badRequest-error');
-const ConflictError = require('../errors/conflict-error');
+// const ConflictError = require('../errors/conflict-error');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 const getUsers = (req, res) => {
@@ -98,17 +98,37 @@ const createUser = (req, res, next) => {
         .catch((err) => {
           if (err.name === 'CastError' || err.name === 'ValidationError') {
             // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
-            throw new BadRequestError('Переданы некорректные данные при поиске пользователя');
+            throw new BadRequestError('Переданы некорректные данные при создании пользователя');
           } else if (err.code === 11000) {
-            // res.status(StatusCodes.CONFLICT).send({ message: 'Пользователь с таким email уже зарегистрирован' });
-            throw new ConflictError('Пользователь с таким email уже существует');
-          } else {
-            next(err);
+            res.status(StatusCodes.CONFLICT).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+            // throw new ConflictError('Пользователь с таким email уже зарегистрирован');
           }
         });
     })
     .catch(next);
 };
+// const createUser = (req, res, next) => {
+//   const {
+//     name, about, avatar, email,
+//   } = req.body;
+//   bcrypt.hash(req.body.password, 10)
+//     .then((hash) => {
+//       User.create({
+//         name, about, avatar, email, password: hash,
+//       })
+//         .then((user) => res.status(StatusCodes.CREATED).send({ data: user }))
+//         .catch((err) => {
+//           if (err.name === 'CastError' || err.name === 'ValidationError') {
+//             res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
+//           } else if (err.code === 11000) {
+//             res.status(StatusCodes.CONFLICT).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+//           } else {
+//             next(err);
+//           }
+//         });
+//     })
+//     .catch(next);
+// };
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
