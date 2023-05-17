@@ -6,7 +6,7 @@ const rateLimit = require('express-rate-limit');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
 const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+// const auth = require('./middlewares/auth');
 const { validationSignIn, validationSignUp } = require('./middlewares/validation');
 
 const app = express();
@@ -31,7 +31,7 @@ app.post('/signup', validationSignUp, createUser);
 app.post('/signin', validationSignIn, login);
 
 app.use(limiter);
-app.use(auth);
+// app.use(auth);
 
 app.use(routes);
 
