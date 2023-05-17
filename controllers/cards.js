@@ -5,15 +5,15 @@ const BadRequestError = require('../errors/badRequest-error');
 const NotFoundError = require('../errors/notFound-error');
 const ForbiddenError = require('../errors/forbidden-error');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .populate('owner')
     .populate('likes')
     .then((cards) => res.status(StatusCodes.OK).send({ data: cards }))
-    .catch(() => res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
@@ -21,13 +21,10 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        // eslint-disable-next-line max-len
-        // res.status(StatusCodes.BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки.' });
         throw new BadRequestError('Переданы некорректные данные при создании карточки');
-      } else {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
       }
-    });
+    })
+    .catch(next);
 };
 
 // Удаление карточки
@@ -36,12 +33,8 @@ function deleteCardById(req, res, next) {
   Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        // eslint-disable-next-line max-len
-        // res.status(StatusCodes.NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
         throw new NotFoundError('Карточка с указанным _id не найдена');
       } if (req.user._id !== card.owner._id.toString()) {
-        // eslint-disable-next-line max-len
-        // res.status(StatusCodes.FORBIDDEN).send({ message: 'У вас нет прав на удаление данной карточки' });
         throw new ForbiddenError('У вас нет прав на удаление данной карточки');
       }
       Card.findByIdAndRemove(cardId)
